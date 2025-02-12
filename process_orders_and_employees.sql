@@ -1,40 +1,28 @@
-CREATE PROCEDURE Process_Orders_And_Employees()
+DELIMITER $$
+
+CREATE PROCEDURE ComplexProcedure()
 BEGIN
-    -- Selecting employees from HR department
-    SELECT id, name, department 
-    FROM employees 
-    WHERE department = 'HR';
+    DECLARE i INT DEFAULT 1;
+    DECLARE j INT DEFAULT 1;
+    DECLARE max_outer INT DEFAULT 5;
+    DECLARE max_inner INT DEFAULT 3;
 
-    -- Inserting completed orders into archived_orders
-    INSERT INTO archived_orders (order_id, customer_id, order_date)
-    SELECT id, customer_id, date
-    FROM orders
-    WHERE status = 'completed';
+    -- Outer loop
+    WHILE i <= max_outer DO
+        -- Inner loop
+        SET j = 1;
+        WHILE j <= max_inner DO
+            -- Example of a nested query in the loop
+            SELECT col1, col2
+            FROM some_table
+            WHERE col1 = i AND col2 = j;
+            
+            SET j = j + 1;
+        END WHILE;
 
-    -- Updating salaries for employees in the Engineering department
-    UPDATE employees e
-    JOIN departments d ON e.department_id = d.id
-    SET e.salary = e.salary * 1.1
-    WHERE d.name = 'Engineering';
+        SET i = i + 1;
+    END WHILE;
 
-    -- Deleting customers who placed orders before 2020-01-01
-    DELETE FROM customers
-    WHERE id IN (
-        SELECT customer_id
-        FROM orders
-        WHERE order_date < '2020-01-01'
-    );
+END $$
 
-    -- Selecting orders with customer and product details where status is shipped
-    SELECT o.id, c.name, p.product_name, o.order_date
-    FROM orders o
-    JOIN customers c ON o.customer_id = c.id
-    JOIN products p ON o.product_id = p.id
-    WHERE o.status = 'shipped';
-
-    -- Inserting new products
-    INSERT INTO products (id, name, price)
-    VALUES 
-        (101, 'Laptop', 1200), 
-        (102, 'Tablet', 600);
-END;
+DELIMITER ;
